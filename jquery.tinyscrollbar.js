@@ -61,6 +61,8 @@
         ,   iMouse      = {}
         ,   touchEvents = 'ontouchstart' in document.documentElement
         ,   started = false
+        ,   deviation = 0
+        ,   maxDeviation = 30
         ;
 
         function initialize()
@@ -143,6 +145,7 @@
 
             var oThumbDir   = parseInt( oThumb.obj.css( sDirection ), 10 );
             iMouse.start    = sAxis ? event.pageX : event.pageY;
+            deviation =  sAxis ? event.pageY : event.pageX ;
             iPosition.start = oThumbDir == 'auto' ? 0 : oThumbDir;
             
             if( ! touchEvents )
@@ -188,14 +191,26 @@
         {
             if( oContent.ratio < 1 )
             {
+                var pos,
+                    page = ( sAxis ? event.pageX : event.pageY ),
+                    currentDeviation = ( sAxis ? event.pageY : event.pageX )
+                ;
+
+                if (Math.abs(currentDeviation - deviation) > maxDeviation) {
+                    $( document ).unbind( 'mousemove', drag );
+                    return;
+                }
+
                 if( options.invertscroll && touchEvents )
                 {
-                    iPosition.now = Math.min( ( oTrack[ options.axis ] - oThumb[ options.axis ] ), Math.max( 0, ( iPosition.start + ( iMouse.start - ( sAxis ? event.pageX : event.pageY ) ))));
+                    pos = iMouse.start - page;
                 }
                 else
                 {
-                     iPosition.now = Math.min( ( oTrack[ options.axis ] - oThumb[ options.axis ] ), Math.max( 0, ( iPosition.start + ( ( sAxis ? event.pageX : event.pageY ) - iMouse.start))));
+                    pos = page - iMouse.start;
                 }
+
+                iPosition.now = Math.min( ( oTrack[ options.axis ] - oThumb[ options.axis ] ), Math.max( 0, ( iPosition.start + pos)));
 
                 iScroll = iPosition.now * oScrollbar.ratio;
                 oContent.obj.css( sDirection, -iScroll );
