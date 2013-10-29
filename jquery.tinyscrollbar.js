@@ -11,13 +11,13 @@
  * @author Maarten Baijs
  *
  */
-;( function( $ ) 
+;( function( $ )
 {
     $.tiny = $.tiny || { };
 
     $.tiny.scrollbar = {
         options: {
-                axis         : 'y'    // vertical or horizontal scrollbar? ( x || y ).
+            axis         : 'y'    // vertical or horizontal scrollbar? ( x || y ).
             ,   wheel        : 40     // how many pixels must the mouswheel scroll at a time.
             ,   scroll       : true   // enable or disable the mousewheel.
             ,   lockscroll   : true   // return scrollwheel to browser if there is no more content.
@@ -30,10 +30,10 @@
     $.fn.tinyscrollbar = function( params )
     {
         var options = $.extend( {}, $.tiny.scrollbar.options, params );
-        
+
         this.each( function()
-        { 
-            $( this ).data('tsb', new Scrollbar( $( this ), options ) ); 
+        {
+            $( this ).data('tsb', new Scrollbar( $( this ), options ) );
         });
 
         return this;
@@ -41,29 +41,29 @@
 
     $.fn.tinyscrollbar_update = function(sScroll)
     {
-        return $( this ).data( 'tsb' ).update( sScroll ); 
+        return $( this ).data( 'tsb' ).update( sScroll );
     };
 
     function Scrollbar( root, options )
     {
         var oSelf       = this
-        ,   oWrapper    = root
-        ,   oViewport   = { obj: $( '.viewport', root ) }
-        ,   oContent    = { obj: $( '.overview', root ) }
-        ,   oScrollbar  = { obj: $( '.scrollbar', root ) }
-        ,   oTrack      = { obj: $( '.track', oScrollbar.obj ) }
-        ,   oThumb      = { obj: $( '.thumb', oScrollbar.obj ) }
-        ,   sAxis       = options.axis === 'x'
-        ,   sDirection  = sAxis ? 'left' : 'top'
-        ,   sSize       = sAxis ? 'Width' : 'Height'
-        ,   iScroll     = 0
-        ,   iPosition   = { start: 0, now: 0 }
-        ,   iMouse      = {}
-        ,   touchEvents = 'ontouchstart' in document.documentElement
-        ,   started = false
-        ,   deviation = 0
-        ,   maxDeviation = 30
-        ;
+            ,   oWrapper    = root
+            ,   oViewport   = { obj: $( '.viewport', root ) }
+            ,   oContent    = { obj: $( '.overview', root ) }
+            ,   oScrollbar  = { obj: $( '.scrollbar', root ) }
+            ,   oTrack      = { obj: $( '.track', oScrollbar.obj ) }
+            ,   oThumb      = { obj: $( '.thumb', oScrollbar.obj ) }
+            ,   sAxis       = options.axis === 'x'
+            ,   sDirection  = sAxis ? 'left' : 'top'
+            ,   sSize       = sAxis ? 'Width' : 'Height'
+            ,   iScroll     = 0
+            ,   iPosition   = { start: 0, now: 0 }
+            ,   iMouse      = {}
+            ,   touchEvents = 'ontouchstart' in document.documentElement
+            ,   started = false
+            ,   deviation = 0
+            ,   maxDeviation = 40
+            ;
 
         function initialize()
         {
@@ -83,12 +83,12 @@
 
             oTrack[ options.axis ] = options.size === 'auto' ? oViewport[ options.axis ] : options.size;
             oThumb[ options.axis ] = Math.min( oTrack[ options.axis ], Math.max( 0, ( options.sizethumb === 'auto' ? ( oTrack[ options.axis ] * oContent.ratio ) : options.sizethumb ) ) );
-        
+
             oScrollbar.ratio = options.sizethumb === 'auto' ? ( oContent[ options.axis ] / oTrack[ options.axis ] ) : ( oContent[ options.axis ] - oViewport[ options.axis ] ) / ( oTrack[ options.axis ] - oThumb[ options.axis ] );
-            
+
             iScroll = ( sScroll === 'relative' && oContent.ratio <= 1 ) ? Math.min( ( oContent[ options.axis ] - oViewport[ options.axis ] ), Math.max( 0, iScroll )) : 0;
             iScroll = ( sScroll === 'bottom' && oContent.ratio <= 1 ) ? ( oContent[ options.axis ] - oViewport[ options.axis ] ) : isNaN( parseInt( sScroll, 10 ) ) ? iScroll : parseInt( sScroll, 10 );
-            
+
             setSize();
         };
 
@@ -115,9 +115,9 @@
             }
             else
             {
-                oTrack.obj.ontouchstart = click;
+                //oTrack.obj.ontouchstart = click;
                 oViewport.obj[0].ontouchstart = function( event )
-                {   
+                {
                     if( 1 === event.touches.length )
                     {
                         start( event.touches[ 0 ] );
@@ -130,6 +130,9 @@
             {
                 oWrapper[0].addEventListener( 'DOMMouseScroll', wheel, false );
                 oWrapper[0].addEventListener( 'mousewheel', wheel, false );
+                oWrapper[0].addEventListener( 'MozMousePixelScroll', function( event ){
+                    event.preventDefault();
+                }, false);
             }
             else if( options.scroll )
             {
@@ -144,10 +147,10 @@
             $( "body" ).addClass( "noSelect" );
 
             var oThumbDir   = parseInt( oThumb.obj.css( sDirection ), 10 );
-            iMouse.start    = sAxis ? event.pageX : event.pageY;
+            iMouse.start = sAxis ? event.pageX : event.pageY;
             deviation =  sAxis ? event.pageY : event.pageX ;
             iPosition.start = oThumbDir == 'auto' ? 0 : oThumbDir;
-            
+
             if( ! touchEvents )
             {
                 $( document ).bind( 'mousemove', drag );
@@ -158,10 +161,10 @@
             {
                 document.ontouchmove = function( event )
                 {
-                    event.preventDefault();
+                    //event.preventDefault();
                     drag( event.touches[ 0 ] );
                 };
-                document.ontouchend = end;        
+                document.ontouchend = end;
             }
         }
 
@@ -170,8 +173,8 @@
             if( oContent.ratio < 1 )
             {
                 var oEvent = event || window.event
-                ,   iDelta = oEvent.wheelDelta ? oEvent.wheelDelta / 120 : -oEvent.detail / 3
-                ;
+                    ,   iDelta = oEvent.wheelDelta ? oEvent.wheelDelta / 120 : -oEvent.detail / 3
+                    ;
 
                 iScroll -= iDelta * options.wheel;
                 iScroll = Math.min( ( oContent[ options.axis ] - oViewport[ options.axis ] ), Math.max( 0, iScroll ));
@@ -185,6 +188,17 @@
                     oEvent.preventDefault();
                 }
             }
+        }
+
+        function click(event) {
+            if (started) {
+                //prevent click when drag
+                return false;
+            }
+
+            iMouse.start = 0;
+            iPosition.start = oThumb[ options.axis ] / 2 - oTrack[ options.axis ];
+            drag(event);
         }
 
         function drag( event )
@@ -219,17 +233,6 @@
             }
         }
 
-        function click(event) {
-          if (started) {
-                //prevent click when drag
-                return false;
-            }
-
-            iMouse.start = 0;
-            iPosition.start = oThumb[ options.axis ] / 2 - oTrack[ options.axis ];
-            drag(event);
-        }
-        
         function end()
         {
             $( "body" ).removeClass( "noSelect" );
@@ -241,7 +244,7 @@
             //because click is fired right away
             setTimeout(function(){
                 started = false;
-            }, 50);
+            }, 150);
         }
 
         return initialize();
