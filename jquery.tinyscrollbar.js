@@ -196,7 +196,8 @@
                     currentDeviation = ( sAxis ? event.pageY : event.pageX )
                 ;
 
-                if (Math.abs(currentDeviation - deviation) > maxDeviation) {
+                //only drag && touch
+                if (started && touchEvents && Math.abs(currentDeviation - deviation) > maxDeviation) {
                     $( document ).unbind( 'mousemove', drag );
                     return;
                 }
