@@ -108,6 +108,7 @@
             {
                 oThumb.obj.bind( 'mousedown', start );
                 oTrack.obj.bind( 'mouseup', drag );
+                oTrack.obj.bind( 'click', click );
             }
             else
             {
@@ -196,6 +197,12 @@
                 oContent.obj.css( sDirection, -iScroll );
                 oThumb.obj.css( sDirection, iPosition.now );
             }
+        }
+
+        function click(event) {
+            iMouse.start = 0;
+            iPosition.start = oThumb[ options.axis ] / 2 - oTrack[ options.axis ];
+            drag(event);
         }
         
         function end()
