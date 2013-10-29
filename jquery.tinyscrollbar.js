@@ -24,6 +24,7 @@
             ,   size         : 'auto' // set the size of the scrollbar to auto or a fixed number.
             ,   sizethumb    : 'auto' // set the size of the thumb to auto or a fixed number.
             ,   invertscroll : false  // Enable mobile invert style scrolling
+            ,   showOnTouch  : true
         }
     };
 
@@ -63,6 +64,7 @@
             ,   started = false
             ,   deviation = 0
             ,   maxDeviation = 40
+            ,   showOnTouch   = options.showOnTouch
             ;
 
         function initialize()
@@ -73,13 +75,18 @@
             return oSelf;
         }
 
+        function isDisabled()
+        {
+            return oContent.ratio < 1;
+        }
+
         this.update = function( sScroll )
         {
             oViewport[ options.axis ] = oViewport.obj[0][ 'offset'+ sSize ];
             oContent[ options.axis ]  = oContent.obj[0][ 'scroll'+ sSize ];
             oContent.ratio            = oViewport[ options.axis ] / oContent[ options.axis ];
 
-            oScrollbar.obj.toggleClass( 'disable', oContent.ratio >= 1 );
+            oScrollbar.obj.toggleClass( 'disable', !isDisabled() );
 
             oTrack[ options.axis ] = options.size === 'auto' ? oViewport[ options.axis ] : options.size;
             oThumb[ options.axis ] = Math.min( oTrack[ options.axis ], Math.max( 0, ( options.sizethumb === 'auto' ? ( oTrack[ options.axis ] * oContent.ratio ) : options.sizethumb ) ) );
@@ -115,6 +122,9 @@
             }
             else
             {
+                if(showOnTouch) {
+                    oScrollbar.obj.show();
+                }
                 //oTrack.obj.ontouchstart = click;
                 oViewport.obj[0].ontouchstart = function( event )
                 {
@@ -170,7 +180,7 @@
 
         function wheel( event )
         {
-            if( oContent.ratio < 1 )
+            if( isDisabled() )
             {
                 var oEvent = event || window.event
                     ,   iDelta = oEvent.wheelDelta ? oEvent.wheelDelta / 120 : -oEvent.detail / 3
@@ -203,7 +213,7 @@
 
         function drag( event )
         {
-            if( oContent.ratio < 1 )
+            if( isDisabled() )
             {
                 var pos,
                     page = ( sAxis ? event.pageX : event.pageY ),
