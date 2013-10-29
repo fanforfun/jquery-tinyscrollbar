@@ -60,6 +60,7 @@
         ,   iPosition   = { start: 0, now: 0 }
         ,   iMouse      = {}
         ,   touchEvents = 'ontouchstart' in document.documentElement
+        ,   started = false
         ;
 
         function initialize()
@@ -135,6 +136,8 @@
 
         function start( event )
         {
+            started = true;
+
             $( "body" ).addClass( "noSelect" );
 
             var oThumbDir   = parseInt( oThumb.obj.css( sDirection ), 10 );
@@ -200,6 +203,11 @@
         }
 
         function click(event) {
+          if (started) {
+                //prevent click when drag
+                return false;
+            }
+
             iMouse.start = 0;
             iPosition.start = oThumb[ options.axis ] / 2 - oTrack[ options.axis ];
             drag(event);
@@ -212,6 +220,11 @@
             $( document ).unbind( 'mouseup', end );
             oThumb.obj.unbind( 'mouseup', end );
             document.ontouchmove = document.ontouchend = null;
+
+            //because click is fired right away
+            setTimeout(function(){
+                started = false;
+            }, 50);
         }
 
         return initialize();
