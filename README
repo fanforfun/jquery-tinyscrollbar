@@ -1,5 +1,7 @@
 Tiny Scrollbar can be used for scrolling content. It was built using the javascript jQuery library. Tiny scrollbar was designed to be a dynamic lightweight utility that gives webdesigners a powerfull way of enhancing a websites user interface
 
-See http://www.baijs.nl/tinyscrollbar/
+Forked version 2.0 has click support and fixes for mobile browsers.
+
+- See original  http://www.baijs.nl/tinyscrollbar/
 
 - Fork with nesting of scrollable containers https://github.com/dsego/tinyscrollbar

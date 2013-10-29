@@ -113,6 +113,7 @@
             }
             else
             {
+                oTrack.obj.ontouchstart = click;
                 oViewport.obj[0].ontouchstart = function( event )
                 {   
                     if( 1 === event.touches.length )
