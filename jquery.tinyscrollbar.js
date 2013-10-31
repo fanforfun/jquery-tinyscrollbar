@@ -63,7 +63,7 @@
             ,   touchEvents = 'ontouchstart' in document.documentElement
             ,   started = false
             ,   deviation = 0
-            ,   maxDeviation = 40
+            ,   maxDeviation = 50
             ,   showOnTouch   = options.showOnTouch
             ;
 
@@ -75,7 +75,7 @@
             return oSelf;
         }
 
-        function isDisabled()
+        function isEnabled()
         {
             return oContent.ratio < 1;
         }
@@ -86,7 +86,7 @@
             oContent[ options.axis ]  = oContent.obj[0][ 'scroll'+ sSize ];
             oContent.ratio            = oViewport[ options.axis ] / oContent[ options.axis ];
 
-            oScrollbar.obj.toggleClass( 'disable', !isDisabled() );
+            oScrollbar.obj.toggleClass( 'disable', !isEnabled() );
 
             oTrack[ options.axis ] = options.size === 'auto' ? oViewport[ options.axis ] : options.size;
             oThumb[ options.axis ] = Math.min( oTrack[ options.axis ], Math.max( 0, ( options.sizethumb === 'auto' ? ( oTrack[ options.axis ] * oContent.ratio ) : options.sizethumb ) ) );
@@ -131,7 +131,7 @@
                     if( 1 === event.touches.length )
                     {
                         start( event.touches[ 0 ] );
-                        event.stopPropagation();
+                        //event.stopPropagation();
                     }
                 };
             }
@@ -171,8 +171,7 @@
             {
                 document.ontouchmove = function( event )
                 {
-                    //event.preventDefault();
-                    drag( event.touches[ 0 ] );
+                    drag( event.touches[ 0 ], event );
                 };
                 document.ontouchend = end;
             }
@@ -180,7 +179,7 @@
 
         function wheel( event )
         {
-            if( isDisabled() )
+            if( isEnabled() )
             {
                 var oEvent = event || window.event
                     ,   iDelta = oEvent.wheelDelta ? oEvent.wheelDelta / 120 : -oEvent.detail / 3
@@ -211,9 +210,9 @@
             drag(event);
         }
 
-        function drag( event )
+        function drag( event, originalEvent )
         {
-            if( isDisabled() )
+            if( isEnabled() )
             {
                 var pos,
                     page = ( sAxis ? event.pageX : event.pageY ),
@@ -222,8 +221,11 @@
 
                 //only drag && touch
                 if (started && touchEvents && Math.abs(currentDeviation - deviation) > maxDeviation) {
-                    $( document ).unbind( 'mousemove', drag );
+                    //$('.thumb').css('background', '#F00');
+                    //end();
                     return;
+                } else if(typeof originalEvent != 'undefined') {
+                    originalEvent.preventDefault();
                 }
 
                 if( options.invertscroll && touchEvents )
@@ -246,6 +248,7 @@
         function end()
         {
             $( "body" ).removeClass( "noSelect" );
+            //TODO namespaced?
             $( document ).unbind( 'mousemove', drag );
             $( document ).unbind( 'mouseup', end );
             oThumb.obj.unbind( 'mouseup', end );
